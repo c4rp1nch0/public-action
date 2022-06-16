@@ -1,0 +1,31 @@
+{
+  "root": false,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "security",
+    "no-secrets",
+    "no-unsanitized"
+  ],
+  "extends": [
+    "plugin:security/recommended",
+    "plugin:jsonc/base"
+  ],
+  "rules": {
+    "no-secrets/no-secrets": [
+      "warn",
+      {
+        "tolerance": 4.0,
+        "ignoreContent": "data[:]image.*",
+        "ignoreCase": true
+      }
+    ],
+    "no-unsanitized/method": "error",
+    "no-unsanitized/property": "error",
+    "security/detect-object-injection": 0
+  }
+}

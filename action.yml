@@ -1,0 +1,10 @@
+# action.yml
+name: 'Public Dummy Docker Action'
+description: 'Just a dummy action'
+author: 'c4rp1nch0'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+  icon: 'alert-octagon'
+  color: 'purple'
