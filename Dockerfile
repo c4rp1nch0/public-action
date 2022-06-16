@@ -1,4 +1,4 @@
-FROM c4rp1nch0/security-tools-eslint:latest
+FROM node:16-alpine 
 
 COPY entrypoint.sh  /entrypoint.sh
 
