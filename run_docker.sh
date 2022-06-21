@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 docker run --rm  \
     -v "${GITHUB_ACTION_PATH}/entrypoint.sh":"/entrypoint.sh" \
     -v "${GITHUB_WORKSPACE}":"/github/workspace" \
