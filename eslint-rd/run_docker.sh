@@ -8,12 +8,11 @@ docker run --rm  \
     -e GITHUB_WORKSPACE="/github/workspace" \
     -e REVIEWDOG_GITHUB_API_TOKEN="${INPUT_RD_GH_TOKEN}" \
     -e GITHUB_EVENT_PATH="/github/workflow/event.json" \
+    -e CI=true \
+    -e GITHUB_ACTIONS=true \
     -e GITHUB_ACTION \
     -e GITHUB_API_URL \
     -e GITHUB_EVENT_NAME \
-    -e GITHUB_TOKEN \
-    -e CI=true \
-    -e GITHUB_ACTIONS=true \
     -e INPUT_ESL_EXT \
     -e INPUT_ESL_CONFIG_NAME \
     -e INPUT_ESL_FORMAT \
