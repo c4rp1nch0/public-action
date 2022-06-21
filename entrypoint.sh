@@ -93,6 +93,9 @@ export REVIEWDOG_GITHUB_API_TOKEN="${INPUT_RD_GH_TOKEN}"
 pushd "${GITHUB_WORKSPACE}" >/dev/null \
     || (/bin/echo "Couldn't change the working directory to '${GITHUB_WORKSPACE}'" && exit 1)
 
+echo ">>> ${GITHUB_EVEN_PATH}"
+cat "${GITHUB_EVEN_PATH}"
+
 /bin/cat "${ESLINT_OUT}" \
     | /usr/local/bin/reviewdog \
         -f="${INPUT_RD_FORMAT}" \
