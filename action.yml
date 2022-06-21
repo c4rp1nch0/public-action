@@ -1,10 +1,96 @@
 # action.yml
-name: 'Public Dummy Docker Action'
-description: 'Just a dummy action'
+name: 'Eslint and Reviewdog Runner'
+description: 'Lint source code using eslint and report finding using reviewdog'
 author: 'c4rp1nch0'
+inputs:
+  eslint-ext:
+    description: 'Comma separated list of file extensions to list'
+    required: false 
+    default: '.js,.jsx,.ts,.tsx,.json'
+  eslint-config-name:
+    description: |
+      Use this configuration, overriding .eslintrc.* config options if present.
+      The config file must exists inside the 'config' folder of this action, 
+      otherwise, it will fallback to the 'default.json' config file.
+    required: false
+    default: 'default.json'
+  eslint-format:
+    description: 'Output format'
+    required: false
+    default: 'rdjson'
+  eslint-paths:
+    description: 'Paths to file/folders to lint'
+    required: false
+    default: '.'
+  eslint-flags:
+    description: 'Additional flags and args for eslint'
+    required: false
+    default: ''
+  reviewdog-format:
+    description: 'Input format name'
+    required: false
+    default: 'rdjson'
+  reviewdog-reporter:
+    description: 'Reporter of reviewdog results.'
+    required: false
+    default: 'github-pr-review'
+  reviewdog-level:
+    description: 'Report level (info|warning|error)'
+    requierd: false
+    default: 'warning'
+  reviewdog-filter-mode:
+    description: 'How to filter check resutls'
+    required: false
+    default: 'added'
+  reviewdog-fail-on-error:
+    description: 'Reviewdog will return 1 as exit code if any errors/warnings found in input'
+    required: false
+    default: 'false'
+  reviewdog-flags:
+    description: 'Additional flags and args for reviewdog'
+    required: false
+    default: ''
+  reviewdog-name:
+    description: 'Tool name in review comment'
+    required: false
+    default: 'mural-security'
+  reviewdog-gh-token:
+    description: 'GitHub token used by reviewdog for reporting'
+    required: false
+    default: ${{ github.token }}
+  docker_registry_username:
+    description: 'Docker registry username'
+    required: false
+    default: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+  docker_registry_password:
+    description: 'Docker registry password'
+    required: false
+    default: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: 'composite'
+  env:
+    INPUT_ESL_EXT: ${{ inputs.eslint-ext }} 
+    INPUT_ESL_CONFIG_NAME: ${{ inputs.eslint-config-name }} 
+    INPUT_ESL_FORMAT: ${{ inputs.eslint-format }} 
+    INPUT_ESL_PATHS: ${{ inputs.eslint-paths }} 
+    INPUT_ESL_FLAGS: ${{ inputs.eslint-flags }} 
+    INPUT_RD_FORMAT: ${{ inputs.reviewdog-format }} 
+    INPUT_RD_REPORTER: ${{ inputs.reviewdog-reporter }} 
+    INPUT_RD_LEVEL: ${{ inputs.reviewdog-level }} 
+    INPUT_RD_FILTER_MODE: ${{ inputs.reviewdog-filter-mode }} 
+    INPUT_RD_FAIL_ON_ERROR: ${{ inputs.reviewdog-fail-on-error }} 
+    INPUT_RD_FLAGS: ${{ inputs.reviewdog-flags }} 
+    INPUT_RD_NAME: ${{ inputs.reviewdog-name }} 
+    INPUT_RD_GH_TOKEN: ${{ inputs.reviewdog-gh-token }} 
+steps:
+  - name: Registry Login
+    uses: docker/login-action@v2
+    with:
+      username: ${{ secrets.DOCKER_HUB_USERNAME }}
+      password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  - name: Run eslint + reviewdog  
+    run: ${{ github.action_path }}/run_docker.sh
+      
 branding:
   icon: 'alert-octagon'
   color: 'purple'
