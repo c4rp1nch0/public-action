@@ -4,7 +4,7 @@ docker run --rm  \
     -v "${GITHUB_WORKSPACE}":"/github/workspace" \
     -v "${GITHUB_ACTION_PATH}/public-action/configs":"/home/node/scan/configs" \
     -e GITHUB_WORKSPACE="/github/workspace" \
-    -e REVIEWDOG_GITHUB_API_TOKEN="${INPUT_RD_GH_TOKEN}" \ \
+    -e REVIEWDOG_GITHUB_API_TOKEN="${INPUT_RD_GH_TOKEN}" \
     -e GITHUB_ACTION \
     -e GITHUB_API_URL \
     -e GITHUB_EVENT_NAME \
