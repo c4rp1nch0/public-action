@@ -61,11 +61,9 @@ inputs:
   registry-username:
     description: 'Docker CR username'
     required: false
-    default: ${{ secrets.DOCKER_HUB_USERNAME }}
   registry-password:
     description: 'Docker CR password'
     required: false
-    default: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 runs:
   using: 'composite'
   steps:
