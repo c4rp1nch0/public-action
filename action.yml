@@ -25,6 +25,7 @@ inputs:
   eslint-flags:
     description: 'Additional flags and args for eslint'
     required: false
+    default: '--no-eslintrc --no-inline-config'
   reviewdog-format:
     description: 'Input format name'
     required: false
