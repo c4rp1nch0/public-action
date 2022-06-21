@@ -1,0 +1,24 @@
+# action.yml
+name: 'Get tinted files' 
+description: 'Get tinted (modified) files in a pull request or push event'
+author: 'c4rp1nch0'
+inputs:
+  path:
+    description: 'Repository path. Relative to the GITHUB_WORKSPACE'
+    required: false 
+    default: '.'
+outputs:
+  tinted-files:
+    description: 'List of the files that has been tinted.'
+    value: ${{ steps.get-files.outputs.tinted-files }}
+runs:
+  using: 'composite'
+  steps:
+    - id: get-files 
+      run: $GITHUB_ACTION_PATH/get-files.sh
+      shell: bash 
+      env:
+        INPUT_PATH: ${{ inputs.path }} 
+branding:
+  icon: 'list'
+  color: 'purple'
