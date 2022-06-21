@@ -60,20 +60,6 @@ inputs:
     default: ${{ github.token }}
 runs:
   using: 'composite'
-  env:
-    INPUT_ESL_EXT: ${{ inputs.eslint-ext }} 
-    INPUT_ESL_CONFIG_NAME: ${{ inputs.eslint-config-name }} 
-    INPUT_ESL_FORMAT: ${{ inputs.eslint-format }} 
-    INPUT_ESL_PATHS: ${{ inputs.eslint-paths }} 
-    INPUT_ESL_FLAGS: ${{ inputs.eslint-flags }} 
-    INPUT_RD_FORMAT: ${{ inputs.reviewdog-format }} 
-    INPUT_RD_REPORTER: ${{ inputs.reviewdog-reporter }} 
-    INPUT_RD_LEVEL: ${{ inputs.reviewdog-level }} 
-    INPUT_RD_FILTER_MODE: ${{ inputs.reviewdog-filter-mode }} 
-    INPUT_RD_FAIL_ON_ERROR: ${{ inputs.reviewdog-fail-on-error }} 
-    INPUT_RD_FLAGS: ${{ inputs.reviewdog-flags }} 
-    INPUT_RD_NAME: ${{ inputs.reviewdog-name }} 
-    INPUT_RD_GH_TOKEN: ${{ inputs.reviewdog-gh-token }} 
   steps:
     - name: Registry Login
       uses: docker/login-action@v2
@@ -83,6 +69,20 @@ runs:
     - name: Run eslint + reviewdog  
       shell: bash
       run: ${{ github.action_path }}/run_docker.sh
+      env:
+        INPUT_ESL_EXT: ${{ inputs.eslint-ext }} 
+        INPUT_ESL_CONFIG_NAME: ${{ inputs.eslint-config-name }} 
+        INPUT_ESL_FORMAT: ${{ inputs.eslint-format }} 
+        INPUT_ESL_PATHS: ${{ inputs.eslint-paths }} 
+        INPUT_ESL_FLAGS: ${{ inputs.eslint-flags }} 
+        INPUT_RD_FORMAT: ${{ inputs.reviewdog-format }} 
+        INPUT_RD_REPORTER: ${{ inputs.reviewdog-reporter }} 
+        INPUT_RD_LEVEL: ${{ inputs.reviewdog-level }} 
+        INPUT_RD_FILTER_MODE: ${{ inputs.reviewdog-filter-mode }} 
+        INPUT_RD_FAIL_ON_ERROR: ${{ inputs.reviewdog-fail-on-error }} 
+        INPUT_RD_FLAGS: ${{ inputs.reviewdog-flags }} 
+        INPUT_RD_NAME: ${{ inputs.reviewdog-name }} 
+        INPUT_RD_GH_TOKEN: ${{ inputs.reviewdog-gh-token }} 
       
 branding:
   icon: 'alert-octagon'
