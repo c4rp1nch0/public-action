@@ -17,6 +17,8 @@ CONFIGS_FOLDER="/home/node/scan/configs"
 pushd "${CONFIGS_FOLDER}" >/dev/null \
     || (/bin/echo "::error:: Couldn't change the working directory to '${CONFIGS_FOLDER}'" && exit 1)
 
+find .
+
 ESLINTRC_PATH="$(/usr/bin/readlink -fn "${INPUT_ESL_CONFIG_NAME}")"
 
 if [ ! -f "${ESLINTRC_PATH}" ]; then
