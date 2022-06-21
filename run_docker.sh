@@ -11,7 +11,6 @@ docker run --rm  \
     -e GITHUB_ACTION \
     -e GITHUB_API_URL \
     -e GITHUB_EVENT_NAME \
-    -e GITHUB_EVENT_PATH \
     -e GITHUB_TOKEN \
     -e CI=true \
     -e GITHUB_ACTIONS=true \
