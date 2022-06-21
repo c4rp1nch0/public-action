@@ -4,7 +4,7 @@ docker run --rm  \
     -v "${GITHUB_ACTION_PATH}/entrypoint.sh":"/entrypoint.sh" \
     -v "${GITHUB_WORKSPACE}":"/github/workspace" \
     -v "${GITHUB_ACTION_PATH}/configs":"/home/node/scan/configs" \
-    -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" \
+    -v "${GITHUB_EVENT_PATH}":"github/workflow/event.json" \
     -e GITHUB_WORKSPACE="/github/workspace" \
     -e REVIEWDOG_GITHUB_API_TOKEN="${INPUT_RD_GH_TOKEN}" \
     -e GITHUB_EVENT_PATH="/github/workflow/event.json" \
