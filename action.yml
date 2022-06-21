@@ -58,14 +58,22 @@ inputs:
     description: 'GitHub token used by reviewdog for reporting'
     required: false
     default: ${{ github.token }}
+  registry-username:
+    description: 'Docker CR username'
+    required: false
+    default: ${{ secrets.DOCKER_HUB_USERNAME }}
+  registry-password:
+    description: 'Docker CR password'
+    required: false
+    default: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 runs:
   using: 'composite'
   steps:
     - name: Registry Login
       uses: docker/login-action@v2
       with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+        username: ${{ inputs.registry-username }}
+        password: ${{ inputs.registry-password }}
     - name: Run eslint + reviewdog  
       shell: bash
       run: ${{ github.action_path }}/run_docker.sh
