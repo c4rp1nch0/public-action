@@ -49,7 +49,6 @@ inputs:
   reviewdog-flags:
     description: 'Additional flags and args for reviewdog'
     required: false
-    default: ''
   reviewdog-name:
     description: 'Tool name in review comment'
     required: false
