@@ -49,7 +49,7 @@ pushd "${GITHUB_WORKSPACE}" >/dev/null \
 
 
 # Convert INPUT_ESL_PATH to an array of paths
-IFS="${INPUT_ESL_PATHS_SEPARATOR}" read -ra ESLINT_PATHS <<< "${INPUT_ESL_PATHS}" || \
+IFS=${INPUT_ESL_PATHS_SEPARATOR} read -ra ESLINT_PATHS <<< "${INPUT_ESL_PATHS}" || \
     (/bin/echo "::error:: Couldn't create an array with the paths to scan" && exit 1)
 
 for p in "${ESLINTRC_PATH[@]}"; do
