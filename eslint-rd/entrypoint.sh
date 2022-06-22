@@ -47,8 +47,7 @@ pushd "${GITHUB_WORKSPACE}" >/dev/null \
     || (/bin/echo "Couldn't change the working directory to '${GITHUB_WORKSPACE}'" && exit 1)
 
 # Convert INPUT_ESL_PATH to an array of paths
-IFS="${INPUT_ESL_PATHS_SEPARATOR}" read -r -a TMP_ESLINT_PATHS <<< "${INPUT_ESL_PATHS}" || \
-    (/bin/echo "::error:: Couldn't create an array with the paths to scan" && exit 1)
+IFS="${INPUT_ESL_PATHS_SEPARATOR}" TMP_ESLINT_PATHS=($INPUT_ESL_PATHS)
 
 for p in "${TMP_ESLINT_PATHS[@]}"; do
     echo ">>>> $p"
