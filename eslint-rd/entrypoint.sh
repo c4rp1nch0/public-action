@@ -49,18 +49,18 @@ pushd "${GITHUB_WORKSPACE}" >/dev/null \
 
 
 # Convert INPUT_ESL_PATH to an array of paths
-IFS=${INPUT_ESL_PATHS_SEPARATOR} read -ra ESLINT_PATHS <<< "${INPUT_ESL_PATHS}" || \
+IFS="${INPUT_ESL_PATHS_SEPARATOR}" read -ra TMP_ESLINT_PATHS <<< "${INPUT_ESL_PATHS}" || \
     (/bin/echo "::error:: Couldn't create an array with the paths to scan" && exit 1)
 
-for p in "${ESLINTRC_PATH[@]}"; do
+for p in "${TMP_ESLINT_PATHS[@]}"; do
     echo ">>>> $p"
 done
 
 # As we have to lunch the eslint scan withing the $SCAN_PATH folder, we'll have to transform
-# the relativate paths comming from $ESLINT_PATHS to their absolute equivalent. 
+# the relativate paths comming from $TMP_ESLINT_PATHS to their absolute equivalent. 
 FILES_TO_SCAN=()
 /bin/echo 'Paths to scan:'
-for path in "${ESLINT_PATHS[@]}"; do
+for path in "${TMP_ESLINT_PATHS[@]}"; do
     echo "> $path" 
     abs_path=$(/usr/bin/readlink -f "$path")
     if [ -z "${abs_path}" ]; then 
