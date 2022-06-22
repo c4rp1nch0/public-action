@@ -48,17 +48,20 @@ pushd "${GITHUB_WORKSPACE}" >/dev/null \
     || (/bin/echo "Couldn't change the working directory to '${GITHUB_WORKSPACE}'" && exit 1)
 
 
-echo "${INPUT_ESL_PATHS}" | xxd 
-
 # Convert INPUT_ESL_PATH to an array of paths
 IFS="${INPUT_ESL_PATHS_SEPARATOR}" read -ra ESLINT_PATHS <<< "${INPUT_ESL_PATHS}" || \
     (/bin/echo "::error:: Couldn't create an array with the paths to scan" && exit 1)
+
+for p in "${ESLINTRC_PATH[@]}"; do
+    echo ">>>> $p"
+done
 
 # As we have to lunch the eslint scan withing the $SCAN_PATH folder, we'll have to transform
 # the relativate paths comming from $ESLINT_PATHS to their absolute equivalent. 
 FILES_TO_SCAN=()
 /bin/echo 'Paths to scan:'
 for path in "${ESLINT_PATHS[@]}"; do
+    echo "> $path" 
     abs_path=$(/usr/bin/readlink -f "$path")
     if [ -z "${abs_path}" ]; then 
         /bin/echo "::warning:: Couldn't resolve the abs path of '${abs_path}'. This will not be scanned."
