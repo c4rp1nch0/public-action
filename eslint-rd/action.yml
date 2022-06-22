@@ -3,7 +3,7 @@ name: 'Eslint and Reviewdog Runner'
 description: 'Lint source code using eslint and report finding using reviewdog'
 author: 'c4rp1nch0'
 inputs:
-  eslint-ext:
+  eslint-extensions:
     description: 'Comma separated list of file extensions to list'
     required: false 
     default: '.js,.jsx,.ts,.tsx,.json'
@@ -19,18 +19,26 @@ inputs:
     required: false
     default: 'rdjson'
   eslint-paths:
-    description: 'Paths to file/folders to lint'
+    description: 'Paths to file/folders to lint. See also `eslint-paths-separator`'
     required: false
     default: '.'
+  eslint-paths-separator:
+    description: 'Separatator chararacter used to split the paths from `eslint-paths`'
+    required: false
+    default: ' '
   eslint-flags:
     description: 'Additional flags and args for eslint'
     required: false
+  eslint-flags-separator:
+    description: 'Separatator chararacter used to split the flags from `eslint-flags`'
+    required: false
+    default: ' '
   reviewdog-format:
     description: 'Input format name'
     required: false
     default: 'rdjson'
   reviewdog-reporter:
-    description: 'Reporter of reviewdog results.'
+    description: 'Reporter of reviewdog results'
     required: false
     default: 'github-pr-review'
   reviewdog-level:
@@ -48,10 +56,14 @@ inputs:
   reviewdog-flags:
     description: 'Additional flags and args for reviewdog'
     required: false
+  reviewdog-flags-separator:
+    description: 'Delimiter chararacter used to split the flags from `reviewdog-flags`'
+    required: false
+    default: ' '
   reviewdog-name:
     description: 'Tool name in review comment'
     required: false
-    default: 'mural-security'
+    default: 'eslint'
   reviewdog-gh-token:
     description: 'GitHub token used by reviewdog for reporting'
     required: false
@@ -74,20 +86,19 @@ runs:
       shell: bash
       run: ${{ github.action_path }}/run_docker.sh
       env:
-        INPUT_ESL_EXT: ${{ inputs.eslint-ext }} 
+        INPUT_ESL_EXT: ${{ inputs.eslint-extensions }} 
         INPUT_ESL_CONFIG_NAME: ${{ inputs.eslint-config-name }} 
         INPUT_ESL_FORMAT: ${{ inputs.eslint-format }} 
         INPUT_ESL_PATHS: ${{ inputs.eslint-paths }} 
+        INPUT_ESL_PATHS_SEPARATOR: ${{ inputs.eslint-paths-separator }} 
         INPUT_ESL_FLAGS: ${{ inputs.eslint-flags }} 
+        INPUT_ESL_FLAGS_SEPARATOR: ${{ inputs.eslint-flags-separator }} 
         INPUT_RD_FORMAT: ${{ inputs.reviewdog-format }} 
         INPUT_RD_REPORTER: ${{ inputs.reviewdog-reporter }} 
         INPUT_RD_LEVEL: ${{ inputs.reviewdog-level }} 
         INPUT_RD_FILTER_MODE: ${{ inputs.reviewdog-filter-mode }} 
         INPUT_RD_FAIL_ON_ERROR: ${{ inputs.reviewdog-fail-on-error }} 
         INPUT_RD_FLAGS: ${{ inputs.reviewdog-flags }} 
+        INPUT_RD_FLAGS_SEPARATOR: ${{ inputs.reviewdog-flags-separator }} 
         INPUT_RD_NAME: ${{ inputs.reviewdog-name }} 
         INPUT_RD_GH_TOKEN: ${{ inputs.reviewdog-gh-token }} 
-      
-branding:
-  icon: 'alert-octagon'
-  color: 'purple'

@@ -1,6 +1,7 @@
 #!/bin/bash
 set -x
 HUB='c4rp1nch0'
+
 docker run --rm  \
     -v "${GITHUB_ACTION_PATH}/entrypoint.sh":"/entrypoint.sh" \
     -v "${GITHUB_WORKSPACE}":"/github/workspace" \
