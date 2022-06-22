@@ -1,11 +1,6 @@
 #!/bin/bash
 set -x
 
-env 
-
-
-echo  "_________________________________"
-
 
 /bin/echo "Eslint version: $(/usr/local/bin/eslint --version)"
 /bin/echo "Reviewdog version: $(/usr/local/bin/reviewdog -version)"

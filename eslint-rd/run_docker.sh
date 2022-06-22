@@ -1,5 +1,6 @@
 #!/bin/bash
 set -x
+HUB='c4rp1nch0'
 docker run --rm  \
     -v "${GITHUB_ACTION_PATH}/entrypoint.sh":"/entrypoint.sh" \
     -v "${GITHUB_WORKSPACE}":"/github/workspace" \
@@ -27,5 +28,5 @@ docker run --rm  \
     -e INPUT_RD_NAME \
     -e INPUT_RD_GH_TOKEN \
     --entrypoint "/entrypoint.sh" \
-    c4rp1nch0/security-tools-eslint:latest
+    "$HUB/security-tools-eslint:latest"
 
