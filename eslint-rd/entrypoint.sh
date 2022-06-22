@@ -83,7 +83,7 @@ IFS="${INPUT_ESL_FLAGS_SEPARATOR:- }" read -r -a ESLINT_FLAGS <<< "${INPUT_ESL_F
     --ext "${INPUT_ESL_EXT}" \
     --format "${INPUT_ESL_FORMAT}" \
     --output-file "${ESLINT_OUT}" \
-    "${ESLINT_FLAGS[@}}" \
+    "${ESLINT_FLAGS[@]}" \
     "${FILES_TO_SCAN[@]}"
 
 /bin/echo "eslint output:"
