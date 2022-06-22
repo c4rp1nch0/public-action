@@ -49,16 +49,11 @@ pushd "${GITHUB_WORKSPACE}" >/dev/null \
 # Convert INPUT_ESL_PATH to an array of paths
 IFS="${INPUT_ESL_PATHS_SEPARATOR:- }" read -r -a TMP_ESLINT_PATHS <<< "${INPUT_ESL_PATHS}"
 
-for p in "${TMP_ESLINT_PATHS[@]}"; do
-    echo ">>>> $p"
-done
-
 # As we have to lunch the eslint scan withing the $SCAN_PATH folder, we'll have to transform
 # the relativate paths comming from $TMP_ESLINT_PATHS to their absolute equivalent. 
 FILES_TO_SCAN=()
 /bin/echo 'Paths to scan:'
 for path in "${TMP_ESLINT_PATHS[@]}"; do
-    echo "> $path" 
     abs_path=$(/usr/bin/readlink -f "$path")
     if [ -z "${abs_path}" ]; then 
         /bin/echo "::warning:: Couldn't resolve the abs path of '${abs_path}'. This will not be scanned."
@@ -79,12 +74,16 @@ pushd "${SCAN_PATH}" >/dev/null \
 
 ESLINT_OUT="$(/bin/mktemp)"
 
+# Convert eslint flags to an array  
+IFS="${INPUT_ESL_FLAGS_SEPARATOR:- }" read -r -a ESLINT_FLAGS <<< "${INPUT_ESL_FLAGS}" \
+    || (/bin/echo "::error:: Couldn't conver eslint flags to an array" && exit 1)
+
 /usr/local/bin/eslint \
     --config '/home/node/scan/eslintrc' \
     --ext "${INPUT_ESL_EXT}" \
     --format "${INPUT_ESL_FORMAT}" \
     --output-file "${ESLINT_OUT}" \
-    "${INPUT_ESL_FLAGS}" \
+    "${ESLINT_FLAGS[@}}" \
     "${FILES_TO_SCAN[@]}"
 
 /bin/echo "eslint output:"
