@@ -78,7 +78,7 @@ ESLINT_OUT="$(/bin/mktemp)"
     --ext "${INPUT_ESL_EXT}" \
     --format "${INPUT_ESL_FORMAT}" \
     --output-file "${ESLINT_OUT}" \
-    "${INPUT_ESL_FLAGS[@]}" \
+    "${INPUT_ESL_FLAGS[@]:-}" \
     "${FILES_TO_SCAN[@]}"
 
 /bin/echo "eslint output:"
