@@ -99,18 +99,17 @@ export REVIEWDOG_GITHUB_API_TOKEN="${INPUT_RD_GH_TOKEN}"
 pushd "${GITHUB_WORKSPACE}" >/dev/null \
     || (/bin/echo "Couldn't change the working directory to '${GITHUB_WORKSPACE}'" && exit 1)
 
-echo ">>> ${GITHUB_EVEN_PATH}"
-cat "${GITHUB_EVEN_PATH}"
 
-/bin/cat "${ESLINT_OUT}" \
-    | /usr/local/bin/reviewdog \
-        -f="${INPUT_RD_FORMAT}" \
-        -name="${INPUT_RD_NAME}" \
-        -filter-mode="${INPUT_RD_FILTER_MODE}" \
-        -reporter="${INPUT_RD_REPORTER:-github-pr-review}" \
-        -level="${INPUT_RD_LEVEL}" \
-        -fail-on-error="${INPUT_RD_FAIL_ON_ERROR}" \
-        "${INPUT_RD_FLAGS[@]}"
+IFS="${INPUT_RD_FLAGS_SEPARATOR:- }" read -r -a RD_FLAGS <<< "${INPUT_RD_FLAGS}"
+
+/usr/local/bin/reviewdog \
+    -f="${INPUT_RD_FORMAT}" \
+    -name="${INPUT_RD_NAME}" \
+    -filter-mode="${INPUT_RD_FILTER_MODE}" \
+    -reporter="${INPUT_RD_REPORTER:-github-pr-review}" \
+    -level="${INPUT_RD_LEVEL}" \
+    -fail-on-error="${INPUT_RD_FAIL_ON_ERROR}" \
+    "${RD_FLAGS[@]}" < "${ESLINT_OUT}" 
 
 rd_exit_code=$?
 
