@@ -47,8 +47,7 @@ pushd "${GITHUB_WORKSPACE}" >/dev/null \
     || (/bin/echo "Couldn't change the working directory to '${GITHUB_WORKSPACE}'" && exit 1)
 
 # Convert INPUT_ESL_PATH to an array of paths
-echo ${INPUT_ESL_PATHS_SEPARATOR} | xxd
-IFS="${INPUT_ESL_PATHS_SEPARATOR}" TMP_ESLINT_PATHS=($INPUT_ESL_PATHS)
+IFS="${INPUT_ESL_PATHS_SEPARATOR:- }" TMP_ESLINT_PATHS=($INPUT_ESL_PATHS)
 
 for p in "${TMP_ESLINT_PATHS[@]}"; do
     echo ">>>> $p"
