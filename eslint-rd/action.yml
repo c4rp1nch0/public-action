@@ -25,7 +25,7 @@ inputs:
   eslint-paths-separator:
     description: 'Separatator chararacter used to split the paths from `eslint-paths`'
     required: false
-    default: ' '
+    default: " " 
   eslint-flags:
     description: 'Additional flags and args for eslint'
     required: false
