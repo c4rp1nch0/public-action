@@ -17,7 +17,6 @@ CONFIGS_FOLDER="/home/node/scan/configs"
 pushd "${CONFIGS_FOLDER}" >/dev/null \
     || (/bin/echo "::error:: Couldn't change the working directory to '${CONFIGS_FOLDER}'" && exit 1)
 
-find .
 
 ESLINTRC_PATH="$(/usr/bin/readlink -fn "${INPUT_ESL_CONFIG_NAME}")"
 
@@ -47,9 +46,8 @@ popd >/dev/null || (/bin/echo "Couldn't restore the working directory" && exit 1
 pushd "${GITHUB_WORKSPACE}" >/dev/null \
     || (/bin/echo "Couldn't change the working directory to '${GITHUB_WORKSPACE}'" && exit 1)
 
-
 # Convert INPUT_ESL_PATH to an array of paths
-IFS="${INPUT_ESL_PATHS_SEPARATOR}" read -r -a TMP_ESLINT_PATHS <<< "${INPUT_ESL_PATHS[@]}" || \
+IFS="${INPUT_ESL_PATHS_SEPARATOR}" read -r -a TMP_ESLINT_PATHS <<< "${INPUT_ESL_PATH}" || \
     (/bin/echo "::error:: Couldn't create an array with the paths to scan" && exit 1)
 
 for p in "${TMP_ESLINT_PATHS[@]}"; do
