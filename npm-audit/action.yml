@@ -1,0 +1,86 @@
+# action.yml
+name: 'NPM Audit and Reviewdog Runner' 
+description: |
+  Reports known vulnerabilities in your dependencies by running `npm audit`. 
+  Then it publishes the results as comments in the PR conversation with 
+  `reviewdog`
+author: 'c4rp1nch0'
+inputs:
+  audit-path:
+    description: 'package.json folder path. Relative to the GITHUB_WORKSPACE'
+    required: true 
+    default: '.'
+  audit-flags:
+    description: 'Additional flags to be passed to the `npm audit` command'
+    required: false 
+  audit-flags-separator:
+    description: 'Separator character used to split the flags from `npm audit`'
+    required: false
+    default: ' '
+  reviewdog-format:
+    description: 'Input format name'
+    required: false
+    default: 'rdjson'
+  reviewdog-reporter:
+    description: 'Reporter of reviewdog results.'
+    required: false
+    default: 'github-pr-review'
+  reviewdog-level:
+    description: 'Report level (info|warning|error)'
+    required: false
+    default: 'warning'
+  reviewdog-filter-mode:
+    description: 'How to filter check resutls'
+    required: false
+    default: 'added'
+  reviewdog-fail-on-error:
+    description: 'Reviewdog will return 1 as exit code if any errors/warnings found in input'
+    required: false
+    default: 'false'
+  reviewdog-flags:
+    description: 'Additional flags and args for reviewdog'
+    required: false
+    default: ''
+  reviewdog-flags-separator:
+    description: 'Separatator chararacter used to split the flags from `reviewdog-flags`'
+    required: false
+    default: ' '
+  reviewdog-name:
+    description: 'Tool name in review comment'
+    required: false
+    default: 'npm-audit'
+  reviewdog-gh-token:
+    description: 'GitHub token used by reviewdog for reporting'
+    required: false
+    default: ${{ github.token }}
+  docker-registry-username:
+    description: 'Docker CR username'
+    required: true 
+  docker-registry-password:
+    description: 'Docker CR password'
+    required: true 
+runs:
+  using: 'composite'
+  steps:
+    - name: Registry Login
+      uses: docker/login-action@v2
+      with:
+        username: ${{ inputs.docker-registry-username }}
+        password: ${{ inputs.docker-registry-password }}
+    - name: Run npm-audit + reviewdog
+      id: npm-audit
+      run: "$GITHUB_ACTION_PATH/run-docker.sh"
+      shell: bash 
+      env:
+        INPUT_NPMA_PATH: ${{ inputs.audit-path }} 
+        INPUT_NPMA_FLAGS: ${{ inputs.audit-flags }} 
+        INPUT_NPMA_FLAGS_SEPARATOR: ${{ inputs.audit-flags-separator }} 
+        INPUT_RD_FORMAT: ${{ inputs.reviewdog-format }} 
+        INPUT_RD_REPORTER: ${{ inputs.reviewdog-reporter }} 
+        INPUT_RD_LEVEL: ${{ inputs.reviewdog-level }} 
+        INPUT_RD_FILTER_MODE: ${{ inputs.reviewdog-filter-mode }} 
+        INPUT_RD_FAIL_ON_ERROR: ${{ inputs.reviewdog-fail-on-error }} 
+        INPUT_RD_FLAGS: ${{ inputs.reviewdog-flags }} 
+        INPUT_RD_FLAGS_SEPARATOR: ${{ inputs.reviewdog-flags-separator }} 
+        INPUT_RD_NAME: ${{ inputs.reviewdog-name }} 
+        INPUT_RD_GH_TOKEN: ${{ inputs.reviewdog-gh-token }} 

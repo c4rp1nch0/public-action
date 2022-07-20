@@ -1,0 +1,267 @@
+#!/usr/bin/env python3
+
+import argparse
+import json
+import re
+from collections import deque
+from pathlib import Path
+from typing import Callable, Dict, Any, Deque, List
+
+
+def resolved_filepath(
+        force_exists: bool = False,
+        mode: str = 'r',
+        encoding: str = 'utf-8',
+        errors: str = 'strict') -> Callable[[str], Path]:
+    def wrapped(wpath: str) -> Path:
+        p = Path(wpath).expanduser().resolve().absolute()
+        if force_exists and mode is not None:
+            try:
+                with open(p, mode=mode, encoding=encoding, errors=errors) as _:
+                    pass
+            except (OSError, ValueError) as e:
+                raise argparse.ArgumentTypeError(e)
+        return p
+    return wrapped
+
+
+cli_parser = argparse.ArgumentParser(
+    description="Converts npm-audit's json output to rdjson",
+    exit_on_error=True,
+)
+
+cli_parser.add_argument(
+        '-a',
+        '--audit-file',
+        help='npm-audit json file path. If ommited, stdin will be used',
+        metavar='NPM_AUDIT_FILE',
+        type=resolved_filepath(force_exists=True),
+        default=None,
+        required=False,
+)
+
+cli_parser.add_argument(
+        '-p',
+        '--package-json',
+        help='Path to the scanned package.json file',
+        type=resolved_filepath(force_exists=True),
+        required=True,
+)
+
+
+cli_parser.add_argument(
+        '-l',
+        '--level',
+        help="Filters the packages to report to those with vulnerabilities up"
+        "to their LEVEL'th dependency. Default 0, means everything.",
+        type=int,
+        default=0,
+        required=False,
+        metavar='LEVEL',
+)
+
+cli_parser.add_argument(
+        '-o',
+        '--output',
+        help="Output file where the rdjson will be saved. If ommited stdout"
+        "will be used",
+        type=resolved_filepath(force_exists=False, mode='w'),
+        default=None,
+        required=False,
+        metavar="OUT_FILE"
+        )
+
+
+class Vulnerability:
+
+    _VULN_DESC_TMPL = """`npm audit` found a vulnerable package:
+
+**{title}**
+
+*Affected Package*: `{affected_package}`
+*Vulnerable Package*: `{package}`
+*Severity*: `{severity}`
+*Vulnerable Path*:
+  {path}
+*Dependency level*: `#{level}`
+*Vulnerable Version Range*: `{version}`
+*URL*: [{url}]({url})
+"""
+
+    def __init__(self, vuln: Dict[str, Any] = {}, path: Deque[str] = deque()):
+        self._vuln = vuln
+        self._path = path
+
+    @property
+    def vuln(self) -> Dict[str, Any]:
+        return self._vuln
+
+    @property
+    def title(self) -> str:
+        return self._vuln.get('title') or ''
+
+    @property
+    def severity(self) -> str:
+        return self._vuln.get('severity') or ''
+
+    @property
+    def path(self) -> Deque[str]:
+        return self._path
+
+    @property
+    def package(self) -> str:
+        return self._path[-1] if self._path else ''
+
+    @property
+    def affected_package(self) -> str:
+        return self._path[0] if self._path else '' 
+
+    @property
+    def level(self) -> int:
+        return len(self._path)
+
+    @property
+    def version(self) -> str:
+        return self._vuln.get('range') or ''
+
+    @property
+    def url(self) -> str:
+        return self._vuln.get('url') or ''
+
+    def __str__(self) -> str:
+        if not self._vuln or not self._path:
+            return 'Vulnerability<empty>'
+        return Vulnerability._VULN_DESC_TMPL.format(
+                title=self.title,
+                affected_package=self.affected_package,
+                package=self.package,
+                severity=self.severity,
+                path=' > '.join(f'`{p}`' for p in self.path),
+                level=self.level,
+                version=self.version,
+                url=self.url
+                )
+
+
+class NpmAuditToRdjson:
+    _TOKENS = (
+        ('NEW_LINE', r'\n'),
+        ('SECTION_DEPS', r'"(devD|d)ependencies"[ \t]*:[ \t]*{'),
+        ('SECTION_CLOSE', r'}'),
+        ('PACKAGE',
+            r'[ \t]*"(?P<NAME>[a-z0-9./@-]+)":[ \t]+"(\^|~)?(\d+\.?){3}[^"]*"[ \t]*,?')
+    )
+
+    _RE_PKG = re.compile('|'.join(f'(?P<{g}>{r})' for g, r in _TOKENS))
+
+    _RDJSON_TMPL: Dict[str, Any] = {
+            'source': {
+                'name': 'npm audit',
+                'url': 'https://docs.npmjs.com/cli/v8/commands/npm-audit'
+                },
+            'diagnostics': []
+    }
+
+    def __init__(self,
+                 npm_audit_output: Dict[str, Any],
+                 package_location: str,
+                 package_json: str,
+                 filter_level: int = 0) -> None:
+        self._audit = npm_audit_output
+        self._package_json_path = package_location
+        self._package_json = package_json
+        self._vulns = npm_audit_output.get('vulnerabilities') or {}
+        self._filter_level = filter_level
+
+    def _get_pkg_line(self, package: str) -> int:
+        line_num, in_section = 1, False
+        for m in NpmAuditToRdjson._RE_PKG.finditer(self._package_json):
+            token = m.lastgroup
+            if token == 'NEW_LINE':
+                line_num += 1
+            elif token == 'SECTION_DEPS':
+                in_section = True
+            elif in_section and token == 'PACKAGE':
+                if m.groupdict().get('NAME') == package:
+                    return line_num
+            elif token == 'SECTION_CLOSE':
+                in_section = False
+        return 0
+
+    @staticmethod
+    def _get_rd_severity(vuln: Vulnerability) -> str:
+        if vuln.severity == 'info' or vuln.severity == 'low':
+            return 'INFO'
+        if vuln.severity == 'moderate':
+            return 'WARNING'
+        if vuln.severity == 'high' or vuln.severity == 'critical':
+            return 'ERROR'
+        return 'UNKNOWN_SEVERITY'
+
+    def _get_vuln_diagnostic(self, vuln: Vulnerability) -> Dict[str, Any]:
+        d: Dict[str, Any] = {}
+        if not vuln:
+            return d
+        d['message'] = str(vuln)
+        d['location'] = {
+                'path': self._package_json_path,
+                'range': {
+                    'start': {
+                        'line': self._get_pkg_line(vuln.affected_package),
+                        'column': 1
+                    }
+                }
+        }
+        d['severity'] = self._get_rd_severity(vuln)
+        d['code'] = {
+                'value': 'npm audit',
+                'url': 'https://docs.npmjs.com/cli/v8/commands/npm-audit'
+        }
+        return d
+
+    def _get_vulns(self, package: str) -> List[Vulnerability]:
+        """
+        Given a package name, returns a list with the associated
+        vulnerabilities
+        """
+        vps: List[Vulnerability] = []
+        for child_pkg in self._vulns[package]['via']:
+            if type(child_pkg) == dict:  # leaf
+                vps.append(Vulnerability(child_pkg, deque([package])))
+                continue
+            for v in self._get_vulns(child_pkg):
+                v.path.appendleft(package)
+                vps.append(v)
+        return vps
+
+    def rdjson(self) -> Dict[str, Any]:
+        parents_pkgs = (pkg for pkg, data in self._vulns.items()
+                        if data['isDirect'])
+        vulns = (vuln for pkg in parents_pkgs for vuln in self._get_vulns(pkg))
+        filtered_vulns = (v for v in vulns if self._filter_level == 0
+                          or v.level <= self._filter_level)
+        rdjson = self._RDJSON_TMPL.copy()
+        for vuln in filtered_vulns:
+            rdjson['diagnostics'].append(self._get_vuln_diagnostic(vuln))
+        return rdjson
+
+
+if __name__ == '__main__':
+    args = cli_parser.parse_args()
+
+    # read npm-audit output. 0 = stdin
+    with open(args.audit_file or 0, 'r', encoding='utf-8') as f:
+        audit_file = json.loads(f.read())
+
+    # read package.json
+    with open(args.package_json, 'r', encoding='utf-8') as f:
+        package_json = f.read()
+
+    audit = NpmAuditToRdjson(npm_audit_output=audit_file,
+                              package_location=str(args.package_json),
+                              package_json=package_json,
+                              filter_level=args.level)
+
+    # output rdjson. 1 means stdout
+    with open(args.output or 1, 'w', encoding='utf-8') as f:
+        f.write(json.dumps(audit.rdjson()))
