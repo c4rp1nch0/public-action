@@ -22,7 +22,9 @@ PACKAGE_JSON="$(readlink -fn "${PROJECT_PATH}/package.json")"
 PACKAGE_LOCK="$(readlink -fn "${PROJECT_PATH}/package-lock.json")"
 
 if [ ! -f "${PACKAGE_LOCK}" ]; then 
-    /bin/echo "::warning:: Couldn't find the package-lock.json file in '${PACKAGE_LOCK}'" 
+    /bin/echo "::warning:: Couldn't find the package-lock.json file in '${PACKAGE_LOCK}'." \
+              "I'll quit silently as I don't have permissions to generate it." \
+              "Please push the package-lock.json file." 
     exit 0
 fi
 
@@ -43,9 +45,9 @@ fi
 /bin/echo "::group:: Converting to RDJSON"
 
 RDJSON_OUT="$(/bin/mktemp)"
-/usr/local/bin/npm_audit_to_rdjson --audit-file "${AUDIT_OUT_FILE}" \
-                                   --package-json "${PACKAGE_JSON}" \
-                                   --output "${RDJSON_OUT}" \
+/usr/local/bin/npm_audit_rdjson --audit-file "${AUDIT_OUT_FILE}" \
+                                --package-json "${PACKAGE_JSON}" \
+                                --output "${RDJSON_OUT}" \
     || (/bin/echo "Error while converting the npm-audit output to rdjson" \
         && exit 1) 
 
