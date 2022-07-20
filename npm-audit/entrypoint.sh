@@ -19,6 +19,16 @@ PACKAGE_JSON="$(readlink -fn "${PROJECT_PATH}/package.json")"
     && /bin/echo "Couldn't find the package.json file in '${PACKAGE_JSON}'" \
     && exit 1
 
+PACKAGE_LOCK="$(readlink -fn "${PROJECT_PATH}/package-lock.json")"
+
+if [ ! -f "${PACKAGE_LOCK}" ]; then 
+    /bin/echo "::warning:: Couldn't find the package-lock.json file in '${PACKAGE_LOCK}'" 
+    /bin/echo "Running 'npm install --package-lock-only to generate it..."
+    /usr/local/bin/npm install --no-progress --package-lock-only  || \
+        (/bin/echo "::error:: Couldn't generate the package-lock.json" \
+        && exit 1)
+fi
+
 /bin/echo "::endgroup::"
 
 /bin/echo "::group:: Running NPM AUDIT"
