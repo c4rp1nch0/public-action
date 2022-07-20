@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -u
 
 /bin/echo "NPM version: $(/usr/local/bin/npm --version)"
 /bin/echo "Reviewdog version: $(/usr/local/bin/reviewdog -version)"
@@ -22,10 +23,7 @@ PACKAGE_LOCK="$(readlink -fn "${PROJECT_PATH}/package-lock.json")"
 
 if [ ! -f "${PACKAGE_LOCK}" ]; then 
     /bin/echo "::warning:: Couldn't find the package-lock.json file in '${PACKAGE_LOCK}'" 
-    /bin/echo "Running 'npm install --package-lock-only to generate it..."
-    /usr/local/bin/npm install --no-progress --package-lock-only  || \
-        (/bin/echo "::error:: Couldn't generate the package-lock.json" \
-        && exit 1)
+    exit 0
 fi
 
 /bin/echo "::endgroup::"
