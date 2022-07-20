@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -uo -pipefail
 
 /bin/echo "NPM version: $(/usr/local/bin/npm --version)"
 /bin/echo "Reviewdog version: $(/usr/local/bin/reviewdog -version)"
