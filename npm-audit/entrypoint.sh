@@ -30,7 +30,7 @@ fi
 
 /bin/echo "::group:: Running NPM AUDIT"
 
-AUDIT_OUT_FILE="$(/bin/mktemp -d)"
+AUDIT_OUT_FILE="$(/bin/mktemp)"
 if [ -z "${INPUT_NPMA_FLAGS}" ]; then
     /usr/local/bin/npm audit --json > "${AUDIT_OUT_FILE}" 
 else
